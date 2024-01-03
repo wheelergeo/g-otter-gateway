@@ -3,81 +3,13 @@
 package main
 
 import (
-	"context"
-	"io"
-	"os"
-	"time"
-
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
-	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/common/utils"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/hertz-contrib/cors"
-	"github.com/hertz-contrib/gzip"
-	"github.com/hertz-contrib/logger/accesslog"
-	"github.com/hertz-contrib/pprof"
-	"github.com/wheelergeo/g-otter-gateway/biz/router"
-	"github.com/wheelergeo/g-otter-gateway/biz/rpc"
-	"github.com/wheelergeo/g-otter-gateway/conf"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
+	gatewaycmd "github.com/wheelergeo/g-otter-gateway/cmd"
 )
 
 func main() {
-	// init dal
-	// dal.Init()
-	rpc.Init()
-	address := conf.GetConf().Hertz.Address
-	h := server.New(server.WithHostPorts(address))
-
-	registerMiddleware(h)
-
-	// add a ping route to test
-	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
-		ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
-	})
-
-	router.GeneratedRegister(h)
-
-	h.Spin()
-}
-
-func registerMiddleware(h *server.Hertz) {
-	// log
-	asyncWriter := &zapcore.BufferedWriteSyncer{
-		WS: zapcore.AddSync(&lumberjack.Logger{
-			Filename:   conf.GetConf().Hertz.LogFileName,
-			MaxSize:    conf.GetConf().Hertz.LogMaxSize,
-			MaxBackups: conf.GetConf().Hertz.LogMaxBackups,
-			MaxAge:     conf.GetConf().Hertz.LogMaxAge,
-		}),
-		FlushInterval: time.Minute,
+	err := gatewaycmd.Command().Execute()
+	if err != nil {
+		hlog.Fatal(err)
 	}
-	hlog.SetOutput(io.MultiWriter(asyncWriter, os.Stdout))
-	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
-		asyncWriter.Sync()
-	})
-
-	// pprof
-	if conf.GetConf().Hertz.EnablePprof {
-		pprof.Register(h)
-	}
-
-	// gzip
-	if conf.GetConf().Hertz.EnableGzip {
-		h.Use(gzip.Gzip(gzip.DefaultCompression))
-	}
-
-	// access log
-	if conf.GetConf().Hertz.EnableAccessLog {
-		h.Use(accesslog.New())
-	}
-
-	// recovery
-	h.Use(recovery.Recovery())
-
-	// cores
-	h.Use(cors.Default())
 }
