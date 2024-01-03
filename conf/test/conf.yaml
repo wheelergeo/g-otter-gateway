@@ -14,7 +14,7 @@ mysql:
   dsn: "root:123456@tcp(127.0.0.1:3306)/g_otter?charset=utf8mb4&parseTime=True&loc=Local"
 
 redis:
-  address: "127.0.0.1:6379"
+  address: "127.0.0.1:6379" #gateway private redis
   username: ""
   password: ""
   db: 0
@@ -22,7 +22,14 @@ redis:
 casbin:
   model_name: "resource/casbin/rbac_model.conf"
   policy_table: "user_common_casbin"
-  policy_redis: "127.0.0.1:6379"
+  policy_redis: "127.0.0.1:6379" #common redis
+
+paseto:
+  cache_key: "ottoken"
+  normal_refresh: 10800 # refresh<t<timeout token will refresh
+  normal_timeout: 16200 # timeout<t token will be invalidated
+  admin_refresh: 604800
+  admin_timeout: 604800
 
 rpc:
   -

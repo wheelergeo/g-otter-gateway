@@ -3,7 +3,6 @@ package gatewaycmd
 import (
 	"context"
 	"io"
-	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -17,15 +16,16 @@ import (
 	"github.com/hertz-contrib/cors"
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/logger/accesslog"
-	"github.com/hertz-contrib/paseto"
 	"github.com/hertz-contrib/pprof"
 	"github.com/spf13/cobra"
 	"github.com/wheelergeo/g-otter-gateway/biz/dal"
 	"github.com/wheelergeo/g-otter-gateway/biz/dal/mysql"
+	"github.com/wheelergeo/g-otter-gateway/biz/dal/redis"
 	"github.com/wheelergeo/g-otter-gateway/biz/router"
 	"github.com/wheelergeo/g-otter-gateway/biz/rpc"
 	"github.com/wheelergeo/g-otter-gateway/conf"
 	"github.com/wheelergeo/g-otter-gateway/pkg/auth"
+	"github.com/wheelergeo/g-otter-gateway/pkg/token"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -47,6 +47,10 @@ func Command() *cobra.Command {
 					conf.GetConf().Casbin.PolicyTable,
 					conf.GetConf().Casbin.PolicyRedis,
 				)
+				token.Init(
+					redis.RedisClient,
+					conf.GetConf().Paseto.CacheKey,
+				)
 
 				h := server.New(
 					server.WithHostPorts(conf.GetConf().Hertz.Address),
@@ -58,27 +62,6 @@ func Command() *cobra.Command {
 				h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
 					ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
 				})
-				h.GET("/paseto", func(c context.Context, ctx *app.RequestContext) {
-					now := time.Now()
-					genTokenFunc := paseto.DefaultGenTokenFunc()
-					token, err := genTokenFunc(&paseto.StandardClaims{
-						Issuer:    "cwg-issuer",
-						ExpiredAt: now.Add(time.Hour),
-						NotBefore: now,
-						IssuedAt:  now,
-					}, nil, nil)
-					if err != nil {
-						hlog.Error("generate token failed")
-					}
-					ctx.String(http.StatusOK, token)
-
-				})
-
-				h.POST("/paseto", paseto.New(), func(c context.Context, ctx *app.RequestContext) {
-					ctx.String(http.StatusOK, "token is valid")
-
-				})
-
 				h.Spin()
 			},
 		}

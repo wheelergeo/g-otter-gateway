@@ -7,6 +7,7 @@ replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 replace github.com/wheelergeo/g-otter-gen => ../gen
 
 require (
+	aidanwoods.dev/go-paseto v1.5.1
 	github.com/apache/thrift v0.19.0
 	github.com/casbin/casbin/v2 v2.80.0
 	github.com/casbin/gorm-adapter/v3 v3.20.0
@@ -16,7 +17,6 @@ require (
 	github.com/hertz-contrib/cors v0.1.0
 	github.com/hertz-contrib/gzip v0.0.3
 	github.com/hertz-contrib/logger/accesslog v0.0.0-20231211035138-acc7b4e2984b
-	github.com/hertz-contrib/paseto v0.0.0-20230508023022-71af6635a26c
 	github.com/hertz-contrib/pprof v0.1.1
 	github.com/kr/pretty v0.3.1
 	github.com/redis/go-redis/v9 v9.3.1
@@ -31,7 +31,6 @@ require (
 )
 
 require (
-	aidanwoods.dev/go-paseto v1.5.1 // indirect
 	aidanwoods.dev/go-result v0.1.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b // indirect

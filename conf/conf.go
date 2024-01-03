@@ -23,6 +23,7 @@ type Config struct {
 	MySQL  MySQL  `yaml:"mysql"`
 	Redis  Redis  `yaml:"redis"`
 	Casbin Casbin `yaml:"casbin"`
+	Paseto Paseto `yaml:"paseto"`
 	Rpc    []Rpc  `yaml:"rpc"`
 }
 
@@ -54,6 +55,14 @@ type Casbin struct {
 	ModelName   string `yaml:"model_name"`
 	PolicyTable string `yaml:"policy_table"`
 	PolicyRedis string `yaml:"policy_redis"`
+}
+
+type Paseto struct {
+	CacheKey      string `yaml:"cache_key"`
+	NormalRefresh int    `yaml:"normal_refresh"`
+	NormalTimeout int    `yaml:"normal_timeout"`
+	AdminRefresh  int    `yaml:"admin_refresh"`
+	AdminTimeout  int    `yaml:"admin_timeout"`
 }
 
 type Rpc struct {
