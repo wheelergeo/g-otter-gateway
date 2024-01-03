@@ -11,13 +11,18 @@ hertz:
   log_max_backups: 50
 
 mysql:
-  dsn: "gorm:gorm@tcp(127.0.0.1:3306)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "root:123456@tcp(127.0.0.1:3306)/g_otter?charset=utf8mb4&parseTime=True&loc=Local"
 
 redis:
   address: "127.0.0.1:6379"
   username: ""
   password: ""
   db: 0
+
+casbin:
+  model_name: "resource/casbin/rbac_model.conf"
+  policy_table: "user_common_casbin"
+  policy_redis: "127.0.0.1:6379"
 
 rpc:
   -

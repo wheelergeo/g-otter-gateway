@@ -19,26 +19,11 @@ var (
 type Config struct {
 	Env string
 
-	Hertz Hertz `yaml:"hertz"`
-	MySQL MySQL `yaml:"mysql"`
-	Redis Redis `yaml:"redis"`
-	Rpc   []Rpc `yaml:"rpc"`
-}
-
-type Rpc struct {
-	Service string `yaml:"service"`
-	Address string `yaml:"address"`
-}
-
-type MySQL struct {
-	DSN string `yaml:"dsn"`
-}
-
-type Redis struct {
-	Address  string `yaml:"address"`
-	Password string `yaml:"password"`
-	Username string `yaml:"username"`
-	DB       int    `yaml:"db"`
+	Hertz  Hertz  `yaml:"hertz"`
+	MySQL  MySQL  `yaml:"mysql"`
+	Redis  Redis  `yaml:"redis"`
+	Casbin Casbin `yaml:"casbin"`
+	Rpc    []Rpc  `yaml:"rpc"`
 }
 
 type Hertz struct {
@@ -52,6 +37,28 @@ type Hertz struct {
 	LogMaxSize      int    `yaml:"log_max_size"`
 	LogMaxBackups   int    `yaml:"log_max_backups"`
 	LogMaxAge       int    `yaml:"log_max_age"`
+}
+
+type MySQL struct {
+	DSN string `yaml:"dsn"`
+}
+
+type Redis struct {
+	Address  string `yaml:"address"`
+	Password string `yaml:"password"`
+	Username string `yaml:"username"`
+	DB       int    `yaml:"db"`
+}
+
+type Casbin struct {
+	ModelName   string `yaml:"model_name"`
+	PolicyTable string `yaml:"policy_table"`
+	PolicyRedis string `yaml:"policy_redis"`
+}
+
+type Rpc struct {
+	Service string `yaml:"service"`
+	Address string `yaml:"address"`
 }
 
 // GetConf gets configuration instance
