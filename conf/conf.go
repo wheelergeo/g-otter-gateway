@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/kr/pretty"
 	"gopkg.in/validator.v2"
 	"gopkg.in/yaml.v2"
 )
@@ -24,6 +23,7 @@ type Config struct {
 	Redis  Redis  `yaml:"redis"`
 	Casbin Casbin `yaml:"casbin"`
 	Paseto Paseto `yaml:"paseto"`
+	Otle   Otle   `yaml:"otle"`
 	Rpc    []Rpc  `yaml:"rpc"`
 }
 
@@ -33,6 +33,7 @@ type Hertz struct {
 	EnablePprof     bool   `yaml:"enable_pprof"`
 	EnableGzip      bool   `yaml:"enable_gzip"`
 	EnableAccessLog bool   `yaml:"enable_access_log"`
+	EnableOtle      bool   `yaml:"enable_otle"`
 	LogLevel        string `yaml:"log_level"`
 	LogFileName     string `yaml:"log_file_name"`
 	LogMaxSize      int    `yaml:"log_max_size"`
@@ -63,6 +64,10 @@ type Paseto struct {
 	NormalTimeout int    `yaml:"normal_timeout"`
 	AdminRefresh  int    `yaml:"admin_refresh"`
 	AdminTimeout  int    `yaml:"admin_timeout"`
+}
+
+type Otle struct {
+	Endpoint string `yaml:"endpoint"`
 }
 
 type Rpc struct {
@@ -96,8 +101,6 @@ func initConf() {
 	}
 
 	conf.Env = GetEnv()
-
-	pretty.Printf("%+v\n", *conf)
 }
 
 func GetEnv() string {

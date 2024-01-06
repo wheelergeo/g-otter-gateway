@@ -3,11 +3,12 @@ package token
 import (
 	"context"
 	"encoding"
-	"encoding/json"
 	"errors"
+	"reflect"
 	"time"
 
 	"aidanwoods.dev/go-paseto"
+	"github.com/bytedance/sonic"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -38,6 +39,7 @@ func Init(redis *redis.Client, cacheKey string) {
 		cacheKey: cacheKey,
 		parser:   paseto.NewParser(),
 	}
+	sonic.Pretouch(reflect.TypeOf(TokenValue{}))
 }
 
 func TokenAuth() *STokenAuth {
@@ -45,11 +47,11 @@ func TokenAuth() *STokenAuth {
 }
 
 func (m TokenValue) MarshalBinary() (data []byte, err error) {
-	return json.Marshal(m)
+	return sonic.Marshal(&m)
 }
 
 func (m *TokenValue) UnmarshalBinary(data []byte) error {
-	return json.Unmarshal(data, m)
+	return sonic.Unmarshal(data, m)
 }
 
 func (ta *STokenAuth) New(refresh, timeout int,

@@ -16,6 +16,8 @@ import (
 	"github.com/hertz-contrib/cors"
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/logger/accesslog"
+	"github.com/hertz-contrib/obs-opentelemetry/provider"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/hertz-contrib/pprof"
 	"github.com/spf13/cobra"
 	"github.com/wheelergeo/g-otter-gateway/biz/dal"
@@ -25,6 +27,7 @@ import (
 	"github.com/wheelergeo/g-otter-gateway/biz/rpc"
 	"github.com/wheelergeo/g-otter-gateway/conf"
 	"github.com/wheelergeo/g-otter-gateway/pkg/auth"
+	"github.com/wheelergeo/g-otter-gateway/pkg/limiter"
 	"github.com/wheelergeo/g-otter-gateway/pkg/token"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -39,6 +42,7 @@ func Command() *cobra.Command {
 			Use:   "gateway",
 			Short: "start gateway",
 			Run: func(cmd *cobra.Command, args []string) {
+				var h *server.Hertz
 				dal.Init()
 				rpc.Init()
 				auth.NewServer(
@@ -52,15 +56,41 @@ func Command() *cobra.Command {
 					conf.GetConf().Paseto.CacheKey,
 				)
 
-				h := server.New(
-					server.WithHostPorts(conf.GetConf().Hertz.Address),
-				)
+				if conf.GetConf().Hertz.EnableOtle &&
+					conf.GetConf().Otle.Endpoint != "" {
+					p := provider.NewOpenTelemetryProvider(
+						provider.WithServiceName(conf.GetConf().Hertz.Service),
+						provider.WithExportEndpoint(conf.GetConf().Otle.Endpoint),
+						provider.WithInsecure(),
+					)
 
+					tracer, cfg := hertztracing.NewServerTracer()
+					h = server.New(
+						server.WithHostPorts(conf.GetConf().Hertz.Address),
+						tracer,
+					)
+					h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
+						p.Shutdown(context.Background())
+					})
+					h.Use(hertztracing.ServerMiddleware(cfg))
+				} else {
+					h = server.New(
+						server.WithHostPorts(conf.GetConf().Hertz.Address),
+					)
+				}
+
+				registerLogger(h, nil)
 				registerMiddleware(h)
 				router.GeneratedRegister(h)
 
 				h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
 					ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
+				})
+				h.GET("/ping/pong", func(c context.Context, ctx *app.RequestContext) {
+					ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
+				})
+				h.GET("/hello", func(c context.Context, ctx *app.RequestContext) {
+					ctx.JSON(consts.StatusOK, utils.H{"hello": "world"})
 				})
 				h.Spin()
 			},
@@ -70,9 +100,36 @@ func Command() *cobra.Command {
 	return c
 }
 
-func registerMiddleware(h *server.Hertz) {
-	// log
+func limiterRule() (rules []limiter.LimiterRule) {
+	rules = []limiter.LimiterRule{
+		{
+			ApiPath: "GET:/ping/pong",
+			Type:    limiter.Flow,
+			Qps:     1,
+		},
+		{
+			ApiPath: "GET:/hello",
+			Type:    limiter.Flow,
+			Qps:     1,
+		},
+		{
+			ApiPath:    "GET:/ping",
+			Type:       limiter.HotspotQPS,
+			Qps:        1,
+			BurstCount: 5,
+			Query: map[string]string{
+				"test": "abc",
+			},
+		},
+	}
+	return
+}
+
+func registerLogger(h *server.Hertz, logger hlog.FullLogger) {
 	hlog.SetLevel(conf.LogLevel())
+	if logger != nil {
+		hlog.SetLogger(logger)
+	}
 	asyncWriter := &zapcore.BufferedWriteSyncer{
 		WS: zapcore.AddSync(&lumberjack.Logger{
 			Filename:   conf.GetConf().Hertz.LogFileName,
@@ -84,11 +141,12 @@ func registerMiddleware(h *server.Hertz) {
 	}
 
 	hlog.SetOutput(io.MultiWriter(asyncWriter, os.Stdout))
-
 	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
 		asyncWriter.Sync()
 	})
+}
 
+func registerMiddleware(h *server.Hertz) {
 	// pprof
 	if conf.GetConf().Hertz.EnablePprof {
 		pprof.Register(h)
@@ -109,4 +167,12 @@ func registerMiddleware(h *server.Hertz) {
 
 	// cores
 	h.Use(cors.Default())
+
+	// sentinel
+	h.Use(limiter.GenerateMiddleware(
+		"too many request, the quoto used up!",
+		10222,
+		limiterRule(),
+	))
+
 }
