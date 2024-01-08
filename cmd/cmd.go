@@ -54,6 +54,8 @@ func Command() *cobra.Command {
 				token.Init(
 					redis.RedisClient,
 					conf.GetConf().Paseto.CacheKey,
+					func(tv *token.TokenValue, cd token.ClaimData) {
+					},
 				)
 
 				if conf.GetConf().Hertz.EnableOtle &&

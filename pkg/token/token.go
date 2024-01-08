@@ -15,10 +15,13 @@ import (
 var _ encoding.BinaryMarshaler = new(TokenValue)
 var _ encoding.BinaryUnmarshaler = new(TokenValue)
 
+type Callback func(*TokenValue, ClaimData)
+
 type STokenAuth struct {
-	redis    *redis.Client
-	cacheKey string
-	parser   paseto.Parser
+	redis     *redis.Client
+	cacheKey  string
+	parser    paseto.Parser
+	onRefresh Callback
 }
 
 type ClaimData map[string]interface{}
@@ -33,11 +36,12 @@ type TokenValue struct {
 
 var sTokenAuth *STokenAuth
 
-func Init(redis *redis.Client, cacheKey string) {
+func Init(redis *redis.Client, cacheKey string, onRefresh Callback) {
 	sTokenAuth = &STokenAuth{
-		redis:    redis,
-		cacheKey: cacheKey,
-		parser:   paseto.NewParser(),
+		redis:     redis,
+		cacheKey:  cacheKey,
+		parser:    paseto.NewParser(),
+		onRefresh: onRefresh,
 	}
 	sonic.Pretouch(reflect.TypeOf(TokenValue{}))
 }
@@ -149,10 +153,11 @@ func (ta *STokenAuth) refresh(oldTokenValue *TokenValue,
 	duration := time.Duration(oldTokenValue.Timeout * int(time.Second))
 
 	// 1. gen new token
+	dataClaims := oldPToken.Claims()
 	newTokenValue, newPToken, err := ta.newToken(
 		oldTokenValue.Refresh,
 		oldTokenValue.Timeout,
-		oldPToken.Claims(),
+		dataClaims,
 	)
 	if err != nil {
 		return
@@ -165,6 +170,10 @@ func (ta *STokenAuth) refresh(oldTokenValue *TokenValue,
 		*newTokenValue,
 		duration,
 	).Err()
+
+	if err == nil && ta.onRefresh != nil {
+		ta.onRefresh(newTokenValue, dataClaims)
+	}
 	return
 }
 
