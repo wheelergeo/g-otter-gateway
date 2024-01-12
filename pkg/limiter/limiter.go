@@ -12,12 +12,14 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/utils"
 )
 
-// Only for gin
+// Only for hertz
 type LimiteType int
 type MWFunc func(*app.RequestContext) *base.BlockError
 
 const (
-	Flow LimiteType = iota
+	GlobalFlow LimiteType = iota
+	ApiFlow
+	IpFlow
 	HotspotQPS
 	HotspotConcurrency
 )
@@ -28,17 +30,38 @@ type LimiterRule struct {
 	ApiPath     string // such as GET:/api/v1/user
 	Type        LimiteType
 	Concurrency int64             // for HotspotConcurrency
-	Qps         int64             // for Flow and HotspotQPS
+	Qps         int64             // for *Flow and HotspotQPS
 	Param       map[string]string // for HotspotQPS and HotspotConcurrency
 	Query       map[string]string // for HotspotQPS and HotspotConcurrency
-	BurstCount  int64             // for HotspotQPS
+	BurstCount  int64             // for HotspotQPS and IpFlow
 }
 
 func GenerateMiddleware(errMsg string, errCode int,
 	rules []LimiterRule) app.HandlerFunc {
 	mwFuncs := initSentine(rules)
 	return func(c context.Context, ctx *app.RequestContext) {
-		_, err := sentinel.Entry(string(ctx.Method()) + ":" + ctx.FullPath())
+		_, err := sentinel.Entry("global")
+		if err != nil {
+			ctx.AbortWithStatusJSON(400, utils.H{
+				"err":  errMsg,
+				"code": errCode,
+			})
+			return
+		}
+
+		_, err = sentinel.Entry(
+			"ip",
+			sentinel.WithArgs(ctx.ClientIP()),
+		)
+		if err != nil {
+			ctx.AbortWithStatusJSON(400, utils.H{
+				"err":  errMsg,
+				"code": errCode,
+			})
+			return
+		}
+
+		_, err = sentinel.Entry(string(ctx.Method()) + ":" + ctx.FullPath())
 		if err != nil {
 			ctx.AbortWithStatusJSON(400, utils.H{
 				"err":  errMsg,
@@ -74,13 +97,30 @@ func initSentine(rules []LimiterRule) []MWFunc {
 	var mwFuncs []MWFunc
 	for _, v := range rules {
 		switch v.Type {
-		case Flow:
+		case GlobalFlow:
+			flowRules = append(flowRules, &flow.Rule{
+				Resource:               "global",
+				Threshold:              float64(v.Qps),
+				TokenCalculateStrategy: flow.Direct,
+				ControlBehavior:        flow.Reject,
+				StatIntervalInMs:       10000,
+			})
+		case ApiFlow:
 			flowRules = append(flowRules, &flow.Rule{
 				Resource:               v.ApiPath,
 				Threshold:              float64(v.Qps),
 				TokenCalculateStrategy: flow.Direct,
 				ControlBehavior:        flow.Reject,
 				StatIntervalInMs:       10000,
+			})
+		case IpFlow:
+			hotspotRules = append(hotspotRules, &hotspot.Rule{
+				Resource:      "ip",
+				MetricType:    hotspot.QPS,
+				ParamIndex:    0,
+				BurstCount:    v.BurstCount,
+				Threshold:     v.Qps,
+				DurationInSec: 1,
 			})
 		case HotspotQPS:
 			hotspotRules = append(hotspotRules, &hotspot.Rule{
