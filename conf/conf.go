@@ -23,7 +23,7 @@ type Config struct {
 	Redis  Redis  `yaml:"redis"`
 	Casbin Casbin `yaml:"casbin"`
 	Paseto Paseto `yaml:"paseto"`
-	Otle   Otle   `yaml:"otle"`
+	Otel   Otel   `yaml:"otel"`
 	Rpc    []Rpc  `yaml:"rpc"`
 }
 
@@ -33,7 +33,7 @@ type Hertz struct {
 	EnablePprof     bool   `yaml:"enable_pprof"`
 	EnableGzip      bool   `yaml:"enable_gzip"`
 	EnableAccessLog bool   `yaml:"enable_access_log"`
-	EnableOtle      bool   `yaml:"enable_otle"`
+	EnableOtel      bool   `yaml:"enable_otel"`
 	LogLevel        string `yaml:"log_level"`
 	LogFileName     string `yaml:"log_file_name"`
 	LogMaxSize      int    `yaml:"log_max_size"`
@@ -66,7 +66,7 @@ type Paseto struct {
 	AdminTimeout  int    `yaml:"admin_timeout"`
 }
 
-type Otle struct {
+type Otel struct {
 	Endpoint string `yaml:"endpoint"`
 }
 

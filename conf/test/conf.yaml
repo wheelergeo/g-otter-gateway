@@ -4,7 +4,7 @@ hertz:
   enable_pprof: true
   enable_gzip: true
   enable_access_log: true
-  enable_otle: true
+  enable_otel: false
   log_level: info
   log_file_name: "resource/log/hertz.log"
   log_max_size: 10
@@ -32,8 +32,8 @@ paseto:
   admin_refresh: 604800
   admin_timeout: 604800
 
-otle:
-  endpoint: 
+otel:
+  endpoint: "127.0.0.1:4317"
 
 rpc:
   -

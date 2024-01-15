@@ -2,9 +2,10 @@ module github.com/wheelergeo/g-otter-gateway
 
 go 1.20
 
-replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
-
-replace github.com/wheelergeo/g-otter-gen => ../gen
+replace (
+	github.com/apache/thrift => github.com/apache/thrift v0.13.0
+	github.com/wheelergeo/g-otter-gen => ../gen
+)
 
 require (
 	aidanwoods.dev/go-paseto v1.5.1
@@ -14,18 +15,27 @@ require (
 	github.com/casbin/casbin/v2 v2.80.0
 	github.com/casbin/gorm-adapter/v3 v3.20.0
 	github.com/casbin/redis-adapter/v3 v3.2.1
+	github.com/cloudwego/dynamicgo v0.1.6
 	github.com/cloudwego/hertz v0.7.3
 	github.com/cloudwego/kitex v0.8.0
+	github.com/dlclark/regexp2 v1.10.0
+	github.com/elastic/go-elasticsearch/v8 v8.11.1
 	github.com/hertz-contrib/cors v0.1.0
 	github.com/hertz-contrib/gzip v0.0.3
 	github.com/hertz-contrib/logger/accesslog v0.0.0-20231211035138-acc7b4e2984b
+	github.com/hertz-contrib/obs-opentelemetry/logging/logrus v0.1.1
 	github.com/hertz-contrib/obs-opentelemetry/provider v0.2.3
 	github.com/hertz-contrib/obs-opentelemetry/tracing v0.3.1
 	github.com/hertz-contrib/pprof v0.1.1
+	github.com/kitex-contrib/obs-opentelemetry v0.2.5
+	github.com/kitex-contrib/obs-opentelemetry/logging/logrus v0.0.0-20231211030816-1f9e0f7bcee3
 	github.com/redis/go-redis/v9 v9.3.1
+	github.com/sirupsen/logrus v1.9.2
 	github.com/spf13/cobra v1.8.0
 	github.com/wheelergeo/g-otter-gen v0.0.1
+	go.opentelemetry.io/otel v1.19.0
 	go.uber.org/zap v1.26.0
+	golang.org/x/sync v0.3.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/validator.v2 v2.0.1
 	gopkg.in/yaml.v2 v2.4.0
@@ -47,7 +57,6 @@ require (
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/choleraehyq/pid v0.0.17 // indirect
 	github.com/cloudwego/configmanager v0.2.0 // indirect
-	github.com/cloudwego/dynamicgo v0.1.6 // indirect
 	github.com/cloudwego/fastpb v0.0.4 // indirect
 	github.com/cloudwego/frugal v0.1.12 // indirect
 	github.com/cloudwego/localsession v0.0.2 // indirect
@@ -55,8 +64,8 @@ require (
 	github.com/cloudwego/thriftgo v0.3.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.3.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -70,7 +79,7 @@ require (
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gomodule/redigo v1.8.9 // indirect
-	github.com/google/pprof v0.0.0-20221118152302-e6195bd50e26 // indirect
+	github.com/google/pprof v0.0.0-20230509042627-b1315fad0c5a // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1 // indirect
 	github.com/henrylee2cn/ameda v1.5.1 // indirect
@@ -116,7 +125,6 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.45.0 // indirect
 	go.opentelemetry.io/contrib/propagators/b3 v1.20.0 // indirect
 	go.opentelemetry.io/contrib/propagators/ot v1.20.0 // indirect
-	go.opentelemetry.io/otel v1.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.42.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.42.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.19.0 // indirect
@@ -130,7 +138,6 @@ require (
 	golang.org/x/arch v0.2.0 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/net v0.18.0 // indirect
-	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto v0.0.0-20231030173426-d783a09b4405 // indirect
