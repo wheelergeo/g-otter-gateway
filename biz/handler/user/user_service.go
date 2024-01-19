@@ -13,7 +13,7 @@ import (
 )
 
 // UserLogin .
-// @router /user/login [POST]
+// @router /login [POST]
 func UserLogin(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req user.UserLoginReq
@@ -32,6 +32,29 @@ func UserLogin(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
+	c.JSON(http.StatusOK, resp)
+}
 
+// UserAdminLogin .
+// @router /login/admin [POST]
+func UserAdminLogin(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req user.UserAdminLoginReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewUserAdminLoginService(ctx, c).Run(&req)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, &base.BaseResp{
+			StatusMessage: "micro user internal error",
+			StatusCode:    http.StatusInternalServerError,
+			Extra:         nil,
+		})
+		return
+	}
 	c.JSON(http.StatusOK, resp)
 }

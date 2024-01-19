@@ -20,16 +20,16 @@ import (
 	"github.com/hertz-contrib/pprof"
 	"github.com/spf13/cobra"
 	"github.com/wheelergeo/g-otter-gateway/biz/dal"
-	"github.com/wheelergeo/g-otter-gateway/biz/dal/mysql"
 	"github.com/wheelergeo/g-otter-gateway/biz/dal/redis"
 	"github.com/wheelergeo/g-otter-gateway/biz/router"
 	"github.com/wheelergeo/g-otter-gateway/biz/rpc"
 	"github.com/wheelergeo/g-otter-gateway/conf"
-	"github.com/wheelergeo/g-otter-gateway/pkg/auth"
-	"github.com/wheelergeo/g-otter-gateway/pkg/limiter"
-	"github.com/wheelergeo/g-otter-gateway/pkg/logger"
-	"github.com/wheelergeo/g-otter-gateway/pkg/token"
-	"github.com/wheelergeo/g-otter-gateway/pkg/validate"
+	"github.com/wheelergeo/g-otter-gen/user"
+	"github.com/wheelergeo/g-otter-pkg/auth"
+	"github.com/wheelergeo/g-otter-pkg/limiter"
+	"github.com/wheelergeo/g-otter-pkg/logger"
+	"github.com/wheelergeo/g-otter-pkg/token"
+	"github.com/wheelergeo/g-otter-pkg/validate"
 )
 
 var once sync.Once
@@ -43,23 +43,29 @@ func Command() *cobra.Command {
 			Run: func(cmd *cobra.Command, args []string) {
 				dal.Init()
 				rpc.Init()
-				auth.NewServer(
+				auth.NewClient(
 					conf.GetConf().Casbin.ModelName,
-					mysql.DB,
-					conf.GetConf().Casbin.PolicyTable,
 					conf.GetConf().Casbin.PolicyRedis,
 				)
 				token.Init(
 					redis.RedisClient,
 					conf.GetConf().Paseto.CacheKey,
-					func(tv *token.TokenValue, cd token.ClaimData) {
+					func(tv *token.TokenValue, cd token.ClaimData, expiredAt time.Time) {
+						rpc.UserClient.RpcUpdateUserOnline(
+							context.Background(),
+							&user.RpcUpdateUserOnlineReq{
+								Token:          tv.Authorization,
+								TokenExpiredAt: expiredAt.Format("2006-01-02 15:04:05"),
+								LoginAt:        time.Now().Format("2006-01-02 15:04:05"),
+							},
+						)
 					},
 				)
 				logger.InitHlogWithLogrus(
 					logger.Config{
 						Mode:   logger.StdOut,
 						Format: logger.Text,
-						Level:  conf.LogLevel(),
+						Level:  logger.Level(conf.LogLevel()),
 						FileCfg: logger.FileConfig{
 							FileName:      conf.GetConf().Hertz.LogFileName,
 							MaxSize:       conf.GetConf().Hertz.LogMaxSize,

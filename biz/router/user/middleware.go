@@ -11,12 +11,22 @@ func rootMw() []app.HandlerFunc {
 	return nil
 }
 
-func _userMw() []app.HandlerFunc {
+func _userloginMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
 
-func _userloginMw() []app.HandlerFunc {
+func _adminMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _useradminloginMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _loginMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }

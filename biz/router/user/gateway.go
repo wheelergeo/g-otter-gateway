@@ -17,8 +17,7 @@ import (
 func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
-	{
-		_user := root.Group("/user", _userMw()...)
-		_user.POST("/login", append(_userloginMw(), user.UserLogin)...)
-	}
+	root.POST("/login", append(_userloginMw(), user.UserLogin)...)
+	_login := root.Group("/login", _loginMw()...)
+	_login.POST("/admin", append(_useradminloginMw(), user.UserAdminLogin)...)
 }
