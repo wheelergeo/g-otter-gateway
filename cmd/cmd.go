@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wheelergeo/g-otter-gateway/biz/dal"
 	"github.com/wheelergeo/g-otter-gateway/biz/dal/redis"
+	"github.com/wheelergeo/g-otter-gateway/biz/middleware"
 	"github.com/wheelergeo/g-otter-gateway/biz/router"
 	"github.com/wheelergeo/g-otter-gateway/biz/rpc"
 	"github.com/wheelergeo/g-otter-gateway/conf"
@@ -80,10 +81,14 @@ func Command() *cobra.Command {
 				registerMiddleware(h)
 				router.GeneratedRegister(h)
 
-				h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
-					hlog.CtxInfof(c, ctx.ClientIP())
-					ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
-				})
+				h.GET("/ping",
+					middleware.TokenMiddleware(),
+					middleware.AuthMiddleware(),
+					func(c context.Context, ctx *app.RequestContext) {
+						hlog.CtxInfof(c, ctx.ClientIP())
+						ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
+					},
+				)
 
 				hlog.Infof("[%s] Server start", conf.GetEnv())
 				h.Spin()

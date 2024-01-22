@@ -8,7 +8,7 @@ import (
 
 func rootMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{}
 }
 
 func _userloginMw() []app.HandlerFunc {
