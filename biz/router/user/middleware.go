@@ -30,3 +30,43 @@ func _loginMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _userMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _commonMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deptMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommondeptcreateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommondeptdeleteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommondeptretrieveMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommondeptretrievetreeMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommondeptupdateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

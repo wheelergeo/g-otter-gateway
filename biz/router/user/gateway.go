@@ -17,7 +17,22 @@ import (
 func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
-	root.POST("/login", append(_userloginMw(), user.UserLogin)...)
-	_login := root.Group("/login", _loginMw()...)
-	_login.POST("/admin", append(_useradminloginMw(), user.UserAdminLogin)...)
+	{
+		_login := root.Group("/login", _loginMw()...)
+		_login.POST("/admin", append(_useradminloginMw(), user.UserAdminLogin)...)
+	}
+	{
+		_user := root.Group("/user", _userMw()...)
+		{
+			_common := _user.Group("/common", _commonMw()...)
+			{
+				_dept := _common.Group("/dept", _deptMw()...)
+				_dept.POST("/create", append(_usercommondeptcreateMw(), user.UserCommonDeptCreate)...)
+				_dept.DELETE("/delete", append(_usercommondeptdeleteMw(), user.UserCommonDeptDelete)...)
+				_dept.GET("/retrieve", append(_usercommondeptretrieveMw(), user.UserCommonDeptRetrieve)...)
+				_dept.GET("/retrieveTree", append(_usercommondeptretrievetreeMw(), user.UserCommonDeptRetrieveTree)...)
+				_dept.PUT("/update", append(_usercommondeptupdateMw(), user.UserCommonDeptUpdate)...)
+			}
+		}
+	}
 }
