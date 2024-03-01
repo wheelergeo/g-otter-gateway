@@ -33,6 +33,27 @@ func Register(r *server.Hertz) {
 				_dept.GET("/retrieveTree", append(_usercommondeptretrievetreeMw(), user.UserCommonDeptRetrieveTree)...)
 				_dept.PUT("/update", append(_usercommondeptupdateMw(), user.UserCommonDeptUpdate)...)
 			}
+			{
+				_kv := _common.Group("/kv", _kvMw()...)
+				_kv.POST("/create", append(_usercommonkvcreateMw(), user.UserCommonKvCreate)...)
+				_kv.DELETE("/delete", append(_usercommonkvdeleteMw(), user.UserCommonKvDelete)...)
+				_kv.GET("/retrieve", append(_usercommonkvretrieveMw(), user.UserCommonKvRetrieve)...)
+				_kv.PUT("/update", append(_usercommonkvupdateMw(), user.UserCommonKvUpdate)...)
+			}
+			{
+				_post := _common.Group("/post", _postMw()...)
+				_post.POST("/create", append(_usercommonpostcreateMw(), user.UserCommonPostCreate)...)
+				_post.DELETE("/delete", append(_usercommonpostdeleteMw(), user.UserCommonPostDelete)...)
+				_post.GET("/retrieve", append(_usercommonpostretrieveMw(), user.UserCommonPostRetrieve)...)
+				_post.PUT("/update", append(_usercommonpostupdateMw(), user.UserCommonPostUpdate)...)
+			}
+			{
+				_role := _common.Group("/role", _roleMw()...)
+				_role.POST("/create", append(_usercommonrolecreateMw(), user.UserCommonRoleCreate)...)
+				_role.DELETE("/delete", append(_usercommonroledeleteMw(), user.UserCommonRoleDelete)...)
+				_role.GET("/retrieve", append(_usercommonroleretrieveMw(), user.UserCommonRoleRetrieve)...)
+				_role.PUT("/update", append(_usercommonroleupdateMw(), user.UserCommonRoleUpdate)...)
+			}
 		}
 	}
 }

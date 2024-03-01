@@ -70,3 +70,78 @@ func _usercommondeptupdateMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _kvMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonkvcreateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonkvdeleteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonkvretrieveMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonkvupdateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _postMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonpostcreateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonpostdeleteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonpostretrieveMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonpostupdateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _roleMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonrolecreateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonroledeleteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonroleretrieveMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usercommonroleupdateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
